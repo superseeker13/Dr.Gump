@@ -105,7 +105,11 @@ public class GameState<T> implements Serializable {
         setGrid(grid);
         this.twoPlayer = twoPlayer;
     }
-
+    
+    /*
+    * Inserts a Character color into the list in the desinated column of the list matrix.
+    * @return True if the piece was inserted 
+    */
     boolean insertPiece(char column, char color) throws NullPointerException, ArrayIndexOutOfBoundsException {
         column -= 48; // Converts ASCII.
         int rowNum = rowNumber - 1;
@@ -118,7 +122,11 @@ public class GameState<T> implements Serializable {
         }
         return false;
     }
-
+    
+    /*
+    * Searches grid for a line of four of the same color.
+    * @return True if a winning line is found.
+    */
     public boolean checkForWin() {
         return columnCheck() || rowCheck() || diagonialCheck();
     }
@@ -130,17 +138,14 @@ public class GameState<T> implements Serializable {
             AList listTwo = (AList) grid.getList()[i + 1];
             AList listThree = (AList) grid.getList()[i + 2];
             AList listFour = (AList) grid.getList()[i + 3];
-            Iterator itOne = listOne.getIterator();
-            Iterator itTwo = listTwo.getIterator();
-            Iterator itThree = listThree.getIterator();
-            Iterator itFour = listFour.getIterator();
+            
             //Assume every list is the same length.
-            while (itOne.hasNext()) {
-                Character oneNext = (Character) itOne.next();
-                if (!(oneNext.equals((Character) ' '))
-                        && oneNext.equals((Character) itTwo.next())
-                        && oneNext.equals((Character) itThree.next())
-                        && oneNext.equals((Character) itFour.next())) {
+            for(int j = 0; j < listOne.size(); j++) {
+                Character oneNext = (Character) listOne.get(j);
+                if ((!oneNext.equals((Character) ' '))
+                        && oneNext.equals((Character) listTwo.get(j))
+                        && oneNext.equals((Character) listThree.get(j))
+                        && oneNext.equals((Character) listFour.get(j))) {
                     winner = (byte) ((((Character) playerColor).equals(oneNext)) ? 1 : -1);
                     return true;
                 }
@@ -171,50 +176,49 @@ public class GameState<T> implements Serializable {
         return false;
     }
 
-    private boolean diagonialCheck() {
-// 
-//        AList listZero = (AList) grid.getList()[0];
-//        AList listOne = (AList) grid.getList()[1];
-//        AList listTwo = (AList) grid.getList()[2];
-//        AList listThree = (AList) grid.getList()[3];
-//        AList listFour = (AList) grid.getList()[4];
-//        AList listFive = (AList) grid.getList()[5];
-//
-//        Object[][] board = {(Object[]) listZero.getList(), (Object[]) listOne.getList(),
-//            (Object[]) listTwo.getList(), (Object[]) listThree.getList(),
-//            (Object[]) listFour.getList(), (Object[]) listFive.getList()};
-//
-//        for (int i = 3; i < rowNumber; i++) {
-//            for (int j = 0; j < i; j++) {
-//                if (!board[i][j].equals((Object) ' ')
-//                        && board[i][j].equals(board[i - 1][j + 1])
-//                        && board[i][j].equals(board[i - 2][j + 2])
-//                        && board[i][j].equals(board[i - 3][j + 3])){
-//                    return true;
-//                }
-//            }
-//        }
-//        for (int i = 0; i < rowNumber; i++) {
-//            for (int j = 3; j > i; j++) {
-//                if (!board[i][j].equals((Character) ' ')
-//                        && board[i][j].equals(board[i + 1][j - 1])
-//                        && board[i][j].equals(board[i + 2][j - 2])
-//                        && board[i][j].equals(board[i + 3][j - 3])) {
-//                    winner = (byte) ((((Character) playerColor).equals(
-//                                board[i][j])) ? 1 : -1);
-//                    return true;
-//                }
-//            }
-//        }
+    private boolean diagonialCheck() { 
+        AList listZero = (AList) grid.getList()[0];
+        AList listOne = (AList) grid.getList()[1];
+        AList listTwo = (AList) grid.getList()[2];
+        AList listThree = (AList) grid.getList()[3];
+        AList listFour = (AList) grid.getList()[4];
+        AList listFive = (AList) grid.getList()[5];
+
+        Object[][] board = {(Object[]) listZero.getList(), (Object[]) listOne.getList(),
+            (Object[]) listTwo.getList(), (Object[]) listThree.getList(),
+            (Object[]) listFour.getList(), (Object[]) listFive.getList()};
+
+        for (int i = 3; i < rowNumber; i++) {
+            for (int j = 0; j < i; j++) {
+                if (!board[i][j].equals((Object) ' ')
+                        && board[i][j].equals(board[i - 1][j + 1])
+                        && board[i][j].equals(board[i - 2][j + 2])
+                        && board[i][j].equals(board[i - 3][j + 3])){
+                    return true;
+                }
+            }
+        }
+        for (int i = 0; i < rowNumber; i++) {
+            for (int j = 3; j < rowNumber; j++) {
+                if (!board[i][j].equals((Character) ' ')
+                        && board[i][j].equals(board[i + 1][j - 1])
+                        && board[i][j].equals(board[i + 2][j - 2])
+                        && board[i][j].equals(board[i + 3][j - 3])) {
+                    winner = (byte) ((((Character) playerColor).equals(
+                                board[i][j])) ? 1 : -1);
+                    return true;
+                }
+            }
+        }
 
         return false;
     }
 
     boolean isGridFull() {
-        return !contains(' ');
+        return !contains((Character) ' ');
     }
 
-    //Searches the inner most lists.
+    //Searches the inner most lists for a like element c.
     private boolean contains(char c) {
         for (int i = 0; i < rowNumber; i++) {
             for (int j = 0; j < columnNumber; j++) {
@@ -225,7 +229,10 @@ public class GameState<T> implements Serializable {
         }
         return false;
     }
-
+    /*
+    * Saves gamestate to a .dat file
+    * @param filename
+    */
     public void saveTo(String filename) {
         File file = new File(filename);
         try {
@@ -240,7 +247,10 @@ public class GameState<T> implements Serializable {
             System.err.println("File write error");
         }
     }
-
+    /*
+    * Loads a gamestate from a given .dat file
+    * @param filename
+    */
     public void loadFrom(String filename) throws ClassNotFoundException {
         File file = new File(filename);
         try {
