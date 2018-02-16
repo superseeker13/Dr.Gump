@@ -69,7 +69,7 @@ public class Game {
                                 state.setTwoPlayer(true);
                                 break;
                             case 'C':
-                            case 'c':    
+                            case 'c':
                                 state.setTwoPlayer(false);
                                 break;
                             default:
@@ -117,6 +117,7 @@ public class Game {
                     System.out.print("Enter a filename: ");
                     filename = in.nextLine() + ".dat";
                     state.saveTo(filename);
+                    state.setPlayerTurn(!state.isPlayerTurn());
                 } else {
                     try {
                         if (!state.insertPiece(getChoice(), state.getPlayerColor())) {
@@ -134,43 +135,57 @@ public class Game {
             } else {
                 if (state.isTwoPlayer()) {
                     System.out.println("Choose a column, Player Two:");
-                    setChoice((in.nextLine().charAt(0)));
+                    try {
+                        setChoice((in.nextLine().charAt(0)));
+                    } catch (StringIndexOutOfBoundsException e) {
+                        choice = ')';
+                    }
                     if (getChoice() == 's' || getChoice() == 'S') {
                         state.saveTo(filename);
-                    } else {
-                        try {
-                            if (!state.insertPiece(getChoice(), state.getComputerColor())) {
-                                System.out.println("That column is full.");
-                                state.setPlayerTurn(!state.isPlayerTurn());
-                            }
-                        } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
-                            System.out.println("Invaild column number.\n");
+                    }
+                    try {
+                        if (!state.insertPiece(getChoice(), state.getComputerColor())) {
+                            System.out.println("That column is full.");
                             state.setPlayerTurn(!state.isPlayerTurn());
-                        } catch (StringIndexOutOfBoundsException e) {
-                            System.out.println("Invaild input");
                         }
+                    } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
+                        System.out.println("Invaild column number.\n");
+                        state.setPlayerTurn(!state.isPlayerTurn());
+                    } catch (StringIndexOutOfBoundsException e) {
+                        System.out.println("Invaild input");
                     }
                 } else {
                     System.out.println("\nNena is thinking.....");
-                    //choice = Henrietta.input(grid);
-                    state.insertPiece(getChoice(), state.getComputerColor());
+//                    choice = Henrietta.input(grid);
+//                    try {
+//                        if (!state.insertPiece(getChoice(), state.getComputerColor())) {
+//                            System.out.println("That column is full.");
+//                            state.setPlayerTurn(!state.isPlayerTurn());
+//                        }
+//                    } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
+//                        System.out.println("Invaild column number.\n");
+//                        state.setPlayerTurn(!state.isPlayerTurn());
+//                    } catch (StringIndexOutOfBoundsException e) {
+//                        System.out.println("Invaild input");
+//                        state.insertPiece(getChoice(), state.getComputerColor());
+//                    }
                 }
+                state.setPlayerTurn(!state.isPlayerTurn());
+                displayGrid();
             }
-            state.setPlayerTurn(!state.isPlayerTurn());
-            displayGrid();
         }
 
         if (state.getWinner() > 0) {
             System.out.println("You Won, Player One");
-        } else if (state.getWinner() < 0 && state.isPlayerTurn()) {
+        } else if (state.isTwoPlayer() && state.getWinner() < 0) {
             System.out.println("You Lost.");
         } else if (state.getWinner() < 0) {
             System.out.println("You Won, Player Two");
         }
         return true;
     }
-
     //Prints ConnectFour board to screen
+
     public static void displayGrid() {
         System.out.println("\n  0   1   2   3   4   5   6");
         System.out.println("______________________________");
