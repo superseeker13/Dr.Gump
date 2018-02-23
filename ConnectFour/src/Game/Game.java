@@ -108,85 +108,25 @@ public class Game {
         while (!state.checkForWin() && !state.isGridFull()) {
             if (state.isPlayerTurn()) {
                 System.out.println("Choose a column, Player One:");
-                try {
-                    setChoice((in.nextLine().charAt(0)));
-                } catch (StringIndexOutOfBoundsException e) {
-                    choice = ')';
-                }
-                if (getChoice() == 's' || getChoice() == 'S') {
-                    System.out.print("Enter a filename: ");
-                    filename = in.nextLine() + ".dat";
-                    state.saveTo(filename);
-                    state.setPlayerTurn(!state.isPlayerTurn());
-                } else {
-                    try {
-                        if (!state.insertPiece(getChoice(), state.getPlayerColor())) {
-                            System.out.println("That column is full.");
-                            state.setPlayerTurn(!state.isPlayerTurn());
-                        }
-                    } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
-                        System.out.println("Invaild column number.\n");
-                        state.setPlayerTurn(!state.isPlayerTurn());
-                    } catch (StringIndexOutOfBoundsException e) {
-                        System.out.println("Invaild input");
-                    }
-                }
-
+                playersMove(state.getPlayerColor());
             } else {
                 if (state.isTwoPlayer()) {
                     System.out.println("Choose a column, Player Two:");
-                    try {
-                        setChoice((in.nextLine().charAt(0)));
-                    } catch (StringIndexOutOfBoundsException e) {
-                        choice = ')';
-                    }
-                    if (getChoice() == 's' || getChoice() == 'S') {
-                        state.saveTo(filename);
-                    }
-                    try {
-                        if (!state.insertPiece(getChoice(), state.getComputerColor())) {
-                            System.out.println("That column is full.");
-                            state.setPlayerTurn(!state.isPlayerTurn());
-                        }
-                    } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
-                        System.out.println("Invaild column number.\n");
-                        state.setPlayerTurn(!state.isPlayerTurn());
-                    } catch (StringIndexOutOfBoundsException e) {
-                        System.out.println("Invaild input");
-                    }
+                    playersMove(state.getComputerColor());
                 } else {
                     System.out.println("\nNena is thinking.....");
-//                    choice = Henrietta.input(grid);
-//                    try {
-//                        if (!state.insertPiece(getChoice(), state.getComputerColor())) {
-//                            System.out.println("That column is full.");
-//                            state.setPlayerTurn(!state.isPlayerTurn());
-//                        }
-//                    } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
-//                        System.out.println("Invaild column number.\n");
-//                        state.setPlayerTurn(!state.isPlayerTurn());
-//                    } catch (StringIndexOutOfBoundsException e) {
-//                        System.out.println("Invaild input");
-//                        state.insertPiece(getChoice(), state.getComputerColor());
-//                    }
+                    computersMove();
                 }
-                state.setPlayerTurn(!state.isPlayerTurn());
-                displayGrid();
             }
+            state.setPlayerTurn(!state.isPlayerTurn());
+            displayGrid();
         }
-
-        if (state.getWinner() > 0) {
-            System.out.println("You Won, Player One");
-        } else if (state.isTwoPlayer() && state.getWinner() < 0) {
-            System.out.println("You Lost.");
-        } else if (state.getWinner() < 0) {
-            System.out.println("You Won, Player Two");
-        }
+        displayWinner();
         return true;
     }
     //Prints ConnectFour board to screen
 
-    public static void displayGrid() {
+    protected static void displayGrid() {
         System.out.println("\n  0   1   2   3   4   5   6");
         System.out.println("______________________________");
         for (Object grid : state.getGrid()) {
@@ -196,6 +136,56 @@ public class Game {
             System.out.println("|");
         }
         System.out.println("______________________________");
+    }
+
+    private static void playersMove(char color) {
+        try {
+            setChoice((in.nextLine().charAt(0)));
+        } catch (StringIndexOutOfBoundsException e) {
+            choice = ')';
+        }
+        if (getChoice() == 's' || getChoice() == 'S') {
+            System.out.print("Enter a filename: ");
+            filename = in.nextLine() + ".dat";
+            state.saveTo(filename);
+            state.setPlayerTurn(!state.isPlayerTurn());
+        } else {
+            try {
+                if (!state.insertPiece(getChoice(), color)) {
+                    System.out.println("That column is full.");
+                    state.setPlayerTurn(!state.isPlayerTurn());
+                }
+            } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
+                System.out.println("Invaild column number.\n");
+                state.setPlayerTurn(!state.isPlayerTurn());
+            } catch (StringIndexOutOfBoundsException e) {
+                System.out.println("Invaild input");
+            }
+        }
+    }
+
+    private static void computersMove() {
+        try {
+            if (!state.insertPiece(getChoice(), state.getComputerColor())) {
+                System.out.println("That column is full.");
+                state.setPlayerTurn(!state.isPlayerTurn());
+            }
+        } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
+            System.out.println("Invaild column number.\n");
+            state.setPlayerTurn(!state.isPlayerTurn());
+        } catch (StringIndexOutOfBoundsException e) {
+            System.out.println("Invaild input");
+        }
+    }
+
+    private static void displayWinner() {
+        if (state.getWinner() > 0) {
+            System.out.println("You Won, Player One");
+        } else if (state.isTwoPlayer() && state.getWinner() < 0) {
+            System.out.println("You Lost.");
+        } else if (state.getWinner() < 0) {
+            System.out.println("You Won, Player Two");
+        }
     }
 
     // Save the win lose record
