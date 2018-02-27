@@ -187,21 +187,8 @@ public class GameState<T> implements Serializable {
             (Object[]) listTwo.getList(), (Object[]) listThree.getList(),
             (Object[]) listFour.getList(), (Object[]) listFive.getList()};
 
-        for (int i = 3; i < rowNumber - 3; i++) {
-            for (int j = columnNumber; j > 3; j--) {
-                if (!((Character) board[i][j]).equals((Character) ' ')
-                        && ((Character) board[i][j]).equals((Character) board[i + 1][j - 1])
-                        && ((Character) board[i][j]).equals((Character) board[i + 2][j - 2])
-                        && ((Character) board[i][j]).equals((Character) board[i + 3][j - 3])) {
-                    winner = (byte) ((((Character) playerColor).equals(
-                            board[i][j])) ? 1 : -1);
-                    return true;
-                }
-            }
-        }
-        
-        for (int i = 3; i < rowNumber - 3; i++) {
-            for (int j = columnNumber; j > 3; j--) {
+        for (int i = 3; i < rowNumber; i++) {
+            for (int j = 0; j < 4; j++) {
                 if (!((Character) board[i][j]).equals((Character) ' ')
                         && ((Character) board[i][j]).equals((Character) board[i - 1][j + 1])
                         && ((Character) board[i][j]).equals((Character) board[i - 2][j + 2])
@@ -212,7 +199,20 @@ public class GameState<T> implements Serializable {
                 }
             }
         }
-
+        
+        for (int i = 3; i < rowNumber; i++) {
+            for (int j = 3; j < columnNumber; j++) {
+                if (!((Character) board[i][j]).equals((Character) ' ')
+                        && ((Character) board[i][j]).equals((Character) board[i - 1][j - 1])
+                        && ((Character) board[i][j]).equals((Character) board[i - 2][j - 2])
+                        && ((Character) board[i][j]).equals((Character) board[i - 3][j - 3])) {
+                    winner = (byte) ((((Character) playerColor).equals(
+                            board[i][j])) ? 1 : -1);
+                    return true;
+                }
+            }
+        }
+        
         return false;
     }
 
