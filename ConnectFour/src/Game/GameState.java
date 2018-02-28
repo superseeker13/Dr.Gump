@@ -242,7 +242,6 @@ public class GameState<T> implements Serializable {
             ObjectOutputStream fout
                     = new ObjectOutputStream(new FileOutputStream(file));
             fout.writeObject(this);
-            fout.flush();
             fout.close();
         } catch (FileNotFoundException ex) {
             System.err.println("File write error");

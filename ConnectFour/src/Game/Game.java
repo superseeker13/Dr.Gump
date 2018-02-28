@@ -17,8 +17,8 @@ import java.util.Scanner;
  */
 public class Game {
 
-    static GameState state;
-    static String filename = "save.dat";
+    private static GameState state;
+    private static String filename = "save.dat";
     private static final String RECORD_FILE_NAME = "record.dat";
     static int[] record;
     static Scanner in = new Scanner(System.in);
@@ -100,6 +100,7 @@ public class Game {
                     System.exit(0);
                     break;
             }
+            choice = ' ';
         }
     }
 
@@ -146,7 +147,7 @@ public class Game {
         }
         if (getChoice() == 's' || getChoice() == 'S') {
             System.out.print("Enter a filename: ");
-            filename = in.nextLine() + ".dat";
+            filename = (in.nextLine() + ".dat");
             state.saveTo(filename);
             state.setPlayerTurn(!state.isPlayerTurn());
         } else {
@@ -179,11 +180,12 @@ public class Game {
     }
 
     private static void displayWinner() {
+        assert state.getWinner() != 0;
         if (state.getWinner() > 0) {
             System.out.println("You Won, Player One");
-        } else if (state.isTwoPlayer() && state.getWinner() < 0) {
+        } else if (!state.isTwoPlayer()) {
             System.out.println("You Lost.");
-        } else if (state.getWinner() < 0) {
+        } else{
             System.out.println("You Won, Player Two");
         }
     }
@@ -201,7 +203,7 @@ public class Game {
         } catch (FileNotFoundException ex) {
             System.err.println("File write error");
         } catch (IOException ex) {
-            System.err.println("File write error");
+            System.err.println("File write error!");
         }
     }
 
