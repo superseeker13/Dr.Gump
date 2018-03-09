@@ -116,13 +116,7 @@ public class LList<T> implements ListWithListIterator<T> {
      */
     @Override
     public boolean containsAll(Collection<?> c) {
-        for(Object element: c){
-            boolean check = contains (element);
-           if(!check){
-               return false;
-           }
-        }
-        return true;
+        return c.stream().map((element) -> contains (element)).noneMatch((check) -> (!check));
     }
 
     /*
@@ -130,10 +124,12 @@ public class LList<T> implements ListWithListIterator<T> {
      */
     @Override
     public boolean addAll(Collection<? extends T> c) {
-        for (T element : c) {
+        c.stream().map((element) -> {
             add(element);
+            return element;
+        }).forEachOrdered((_item) -> {
             numberOfEntries++;
-        }
+        });
        return true;
     }
 
@@ -142,10 +138,12 @@ public class LList<T> implements ListWithListIterator<T> {
      */
     @Override
     public boolean addAll(int index, Collection<? extends T> c) {
-        for (T element : c) {
+        c.stream().map((element) -> {
             add(index,element);
+            return element;
+        }).forEachOrdered((_item) -> {
             numberOfEntries++;
-        }
+        });
        return true;
     }
 
@@ -322,7 +320,7 @@ public class LList<T> implements ListWithListIterator<T> {
             this.previous = previous;
         }
     }
-
+    
     private class LinkedListIterator<T> implements ListIterator<T> {
 
         Node nextNode;
