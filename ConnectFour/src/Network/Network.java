@@ -1,7 +1,5 @@
 package Network;
-
-import java.util.stream.IntStream;
-import Lists.LList;
+import java.util.stream.*;
 
 /**
  *
@@ -9,42 +7,33 @@ import Lists.LList;
  */
 public class Network {
 
-    LList input;
-    LList hiddenLayers;
-    LList output;
-    LList Layers;
     String label;
-    int numberOfLayers;
+    double[] input;
+    double[] hidden;
+    double[] output;
+    final int numberOfLayers = 3;
     int numberOfNeurons;
     int[] neuronsPerLayer;
 
     public Network(String label, int[] neuronsPerLayer) {
         this.label = label;
         this.numberOfNeurons = IntStream.of(neuronsPerLayer).sum();
-        this.numberOfLayers = neuronsPerLayer.length - 1;
+        input = createNewLayer(neuronsPerLayer[0], neuronsPerLayer[1]);
+        hidden = createNewLayer(neuronsPerLayer[1], neuronsPerLayer[2]);
+        output = createNewLayer(neuronsPerLayer[0], 0);
         
-        //Handles invaild network structures
-        if (numberOfLayers > 2 && numberOfNeurons > 2 && neuronsPerLayer.length > 2) {
-            throw new IllegalArgumentException("The Network must contain at"
-                    + " least three layers and three neurons.");
-        } else {
-            //Fills the network with random neurons
-            for (int i = 0; i < numberOfLayers; i++) {
-                Layers.add(createNewLayer(neuronsPerLayer[i], neuronsPerLayer[i + 1]));
-            }
-            for(int i = 0; i < numberOfLayers; i++){
-                
-            }
-            
-        }
     }
 
-    private LList createNewLayer(int numberOfNodes, int numberOfConnections) {
-        LList Neurons = new LList();
-        for (int j = 0; j < numberOfNodes; j++) {
-            Neurons.add(new Neuron(numberOfConnections));
+    private double[] createNewLayer(int numberOfNodes, int numberOfConnections) {
+        double[] tempLayer = new double[numberOfNodes];
+        for (int j = 0; j < numberOfNodes; j++) {              
+            tempLayer[j] = Math.random();
         }
-        return Neurons;
+        return tempLayer;
+    }
+    
+    private double sigmoid(double a){
+        return (1 / (1 + Math.pow(Math.E, -a)));
     }
     
     boolean checkInitialization() {

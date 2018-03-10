@@ -13,7 +13,6 @@ import java.util.Scanner;
 /**
  *
  * @author Edward Conn
- * @author
  */
 public class Game {
 

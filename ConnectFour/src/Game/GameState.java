@@ -90,9 +90,9 @@ public class GameState<T> implements Serializable {
         }
         for (Iterator it = grid.getIterator(); it.hasNext();) {
             AList gridColunm = (AList) it.next();
-            for (Object gridRow : gridColunm) {
+            gridColunm.forEach((gridRow) -> {
                 gridRow = ' ';
-            }
+            });
         }
         this.playerTurn = true;
     }

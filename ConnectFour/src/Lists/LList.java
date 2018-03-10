@@ -46,7 +46,7 @@ public class LList<T> implements ListWithListIterator<T> {
     public boolean contains(Object o) {
         LinkedListIterator LLIt = (LinkedListIterator) getIterator();
         while (LLIt.hasNext()) {
-            if (o.equals(LLIt.next())){
+            if (o.equals(LLIt.next())) {
                 return true;
             }
         }
@@ -102,13 +102,13 @@ public class LList<T> implements ListWithListIterator<T> {
     public boolean remove(Object o) {
         LinkedListIterator<T> currentIT = (LinkedListIterator<T>) getIterator();
         if (currentIT.hasNext()) {
-            if(o.equals(currentIT.next())){
+            if (o.equals(currentIT.next())) {
                 remove(currentIT.getIndex());
                 numberOfEntries--;
                 return true;
             }
         }
-            throw new NoSuchElementException();
+        throw new NoSuchElementException();
     }
 
     /*
@@ -116,7 +116,7 @@ public class LList<T> implements ListWithListIterator<T> {
      */
     @Override
     public boolean containsAll(Collection<?> c) {
-        return c.stream().map((element) -> contains (element)).noneMatch((check) -> (!check));
+        return c.stream().map((element) -> contains(element)).noneMatch((check) -> (!check));
     }
 
     /*
@@ -130,7 +130,7 @@ public class LList<T> implements ListWithListIterator<T> {
         }).forEachOrdered((_item) -> {
             numberOfEntries++;
         });
-       return true;
+        return true;
     }
 
     /*
@@ -139,12 +139,12 @@ public class LList<T> implements ListWithListIterator<T> {
     @Override
     public boolean addAll(int index, Collection<? extends T> c) {
         c.stream().map((element) -> {
-            add(index,element);
+            add(index, element);
             return element;
         }).forEachOrdered((_item) -> {
             numberOfEntries++;
         });
-       return true;
+        return true;
     }
 
     /*
@@ -211,11 +211,11 @@ public class LList<T> implements ListWithListIterator<T> {
         LinkedListIterator<T> currentIT = (LinkedListIterator<T>) getIterator();
         if (index > 0 && index <= numberOfEntries) {
             Node removeNode = currentIT.getNodeAt(index - 1);
-            if(removeNode.next != null){    
+            if (removeNode.next != null) {
                 Node nex = removeNode.next;
                 nex.setPrevious(removeNode.previous);
             }
-            if(removeNode.previous != null){
+            if (removeNode.previous != null) {
                 Node prev = removeNode.previous;
                 prev.setNext(removeNode.next);
             }
@@ -224,9 +224,9 @@ public class LList<T> implements ListWithListIterator<T> {
             removeNode.next = null;
             numberOfEntries--;
             return data;
-        }else if (index == 0){
-         firstNode = firstNode.next;
-         firstNode.setPrevious(null);
+        } else if (index == 0) {
+            firstNode = firstNode.next;
+            firstNode.setPrevious(null);
         }
         throw new NoSuchElementException();
     }
@@ -271,10 +271,10 @@ public class LList<T> implements ListWithListIterator<T> {
     public List<T> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    public T typeTCaster(Object e){
+
+    public T typeTCaster(Object e) {
         return (T) e;
-        }
+    }
 
     private class Node {
 
@@ -320,7 +320,7 @@ public class LList<T> implements ListWithListIterator<T> {
             this.previous = previous;
         }
     }
-    
+
     private class LinkedListIterator<T> implements ListIterator<T> {
 
         Node nextNode;
@@ -404,7 +404,7 @@ public class LList<T> implements ListWithListIterator<T> {
         public int getIndex() {
             return index;
         }
-        
+
         private Node getNodeAt(int index) {
             if (index >= 0 && index < numberOfEntries) {
                 Node current = firstNode;
