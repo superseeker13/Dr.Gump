@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
  *
  * @author sjw
  * @author Edward Conn
+ * @author Micheal Schultz
  * @param <T>
  */
 public class LList<T> implements ListWithListIterator<T> {

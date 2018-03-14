@@ -18,17 +18,16 @@ import java.util.Iterator;
  * @param <T>
  */
 public class GameState<T> implements Serializable {
-
-    private AList grid;
+    private final Board board;
     private boolean playerTurn;
-    transient private boolean twoPlayer;
-    transient private final char playerColor = 'Y';
-    private final char computerColor = 'R';
-    private final int columnNumber;
-    private final int rowNumber;
+    private boolean twoPlayer;
     private byte winner;
 
-    public boolean isTwoPlayer() {
+    public Board getBoard() {
+        return board;
+    }
+    
+    boolean isTwoPlayer() {
         return twoPlayer;
     }
 
@@ -40,22 +39,22 @@ public class GameState<T> implements Serializable {
         return winner;
     }
 
-    public void setWinner(byte winner) {
+    void setWinner(byte winner) {
         this.winner = winner;
     }
 
     public AList getGrid() {
-        return grid;
+        return board.getGrid();
     }
 
     private void setGrid(AList grid) {
-        this.grid = grid;
+        this.board.setGrid(grid);
     }
 
-    void setGridSection(AList grid, int x, int y, char c) {
-        //grid[x][y] = c;
-        this.grid = grid;
-    }
+//    void setGridSection(AList grid, int x, int y, char c) {
+//        //grid[x][y] = c;
+//        this.grid.setGrid(grid);
+//    }
 
     public boolean isPlayerTurn() {
         return playerTurn;
@@ -65,30 +64,18 @@ public class GameState<T> implements Serializable {
         this.playerTurn = playerTurn;
     }
 
-    public char getPlayerColor() {
-        return playerColor;
-    }
-
-    public char getComputerColor() {
-        return computerColor;
-    }
-
     public GameState() {
         this.twoPlayer = false;
         this.winner = 0;
-        this.rowNumber = 6;
-        this.columnNumber = 7;
-        this.grid = new AList<>();
-        //Fills grid with spaces
-        this.grid = new AList();
-        for (int i = 0; i < rowNumber; i++) {
+        board = new Board((byte) 7, (byte) 6);
+        for (int i = 0; i < board.getRowNumber(); i++) {
             AList<Character> list = new AList<>();
-            for (int j = 0; j < columnNumber; j++) {
+            for (int j = 0; j < board.getColumnNumber(); j++) {
                 list.add(' ');
             }
-            grid.add(list);
+            board.getGrid().add(list);
         }
-        for (Iterator it = grid.getIterator(); it.hasNext();) {
+        for (Iterator it = board.getGrid().getIterator(); it.hasNext();) {
             AList gridColunm = (AList) it.next();
             gridColunm.forEach((gridRow) -> {
                 gridRow = ' ';
@@ -99,10 +86,7 @@ public class GameState<T> implements Serializable {
 
     public GameState(AList grid, boolean twoPlayer) {
         this.winner = 0;
-        this.rowNumber = 6;
-        this.columnNumber = 7;
-        this.grid = new AList<>(); // AList of char[] cast to Object.
-        setGrid(grid);
+        this.board = new Board( grid, (byte) 6, (byte) 7); // 6X7 board
         this.twoPlayer = twoPlayer;
     }
 
@@ -112,126 +96,33 @@ public class GameState<T> implements Serializable {
      */
     boolean insertPiece(char column, char color) throws NullPointerException, ArrayIndexOutOfBoundsException {
         column -= 48; // Converts ASCII.
-        int rowNum = rowNumber - 1;
+        int rowNum = board.getRowNumber() - 1;
         assert !isGridFull(); // Double-checking that the computer can only inserts one piece.
         for (int i = rowNum; i >= 0; i--) {
-            if (((AList) grid.get(i)).get(column).equals((Character) ' ')) {
-                ((AList) grid.get(i)).set(column, color);
+            if (((AList) board.getGrid().get(i)).get(column).equals((Character) ' ')) {
+                ((AList) board.getGrid().get(i)).set(column, color);
                 return true;
             }
         }
         return false;
     }
-
-    /*
-    * Searches grid for a line of four of the same color.
-    * @return True if a winning line is found.
-     */
-    public boolean checkForWin() {
-        return columnCheck() || rowCheck() || diagonialCheck();
-    }
-
-    private boolean columnCheck() {
-
-        for (int i = 0; i < rowNumber - 3; i++) {
-            AList listOne = (AList) grid.getList()[i];
-            AList listTwo = (AList) grid.getList()[i + 1];
-            AList listThree = (AList) grid.getList()[i + 2];
-            AList listFour = (AList) grid.getList()[i + 3];
-
-            //Assume every list is the same length.
-            for (int j = 0; j < listOne.size(); j++) {
-                Character oneNext = (Character) listOne.get(j);
-                if ((!oneNext.equals((Character) ' '))
-                        && oneNext.equals((Character) listTwo.get(j))
-                        && oneNext.equals((Character) listThree.get(j))
-                        && oneNext.equals((Character) listFour.get(j))) {
-                    winner = (byte) ((((Character) playerColor).equals(oneNext)) ? 1 : -1);
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private boolean rowCheck() {
-        for (int i = 0; i < rowNumber; i++) {
-            //Casts the Object in grid's Object[] to AList 
-            AList currentRow = (AList) grid.getList()[i];
-            if (currentRow.numberOf('Y') > 3 || currentRow.numberOf('R') > 3) {
-                for (int j = 0; j < columnNumber - 3; j++) {
-                    //Checks for rows of four like colored pieces.
-                    if (!((Character) currentRow.getList()[j]).equals((Character) ' ')
-                            && ((Character) currentRow.getList()[j]).equals((Character) currentRow.getList()[j + 1])
-                            && ((Character) currentRow.getList()[j]).equals((Character) currentRow.getList()[j + 2])
-                            && ((Character) currentRow.getList()[j]).equals((Character) currentRow.getList()[j + 3])) {
-                        winner = (byte) ((((Character) playerColor).equals(
-                                currentRow.getList()[j])) ? 1 : -1);
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean diagonialCheck() {
-        AList listZero = (AList) grid.getList()[0];
-        AList listOne = (AList) grid.getList()[1];
-        AList listTwo = (AList) grid.getList()[2];
-        AList listThree = (AList) grid.getList()[3];
-        AList listFour = (AList) grid.getList()[4];
-        AList listFive = (AList) grid.getList()[5];
-        Object[][] board = {(Object[]) listZero.getList(), (Object[]) listOne.getList(),
-            (Object[]) listTwo.getList(), (Object[]) listThree.getList(),
-            (Object[]) listFour.getList(), (Object[]) listFive.getList()};
-
-        for (int i = 3; i < rowNumber; i++) {
-            for (int j = 0; j < 4; j++) {
-                if (!((Character) board[i][j]).equals((Character) ' ')
-                        && ((Character) board[i][j]).equals((Character) board[i - 1][j + 1])
-                        && ((Character) board[i][j]).equals((Character) board[i - 2][j + 2])
-                        && ((Character) board[i][j]).equals((Character) board[i - 3][j + 3])) {
-                    winner = (byte) ((((Character) playerColor).equals(
-                            board[i][j])) ? 1 : -1);
-                    return true;
-                }
-            }
-        }
         
-        for (int i = 3; i < rowNumber; i++) {
-            for (int j = 3; j < columnNumber; j++) {
-                if (!((Character) board[i][j]).equals((Character) ' ')
-                        && ((Character) board[i][j]).equals((Character) board[i - 1][j - 1])
-                        && ((Character) board[i][j]).equals((Character) board[i - 2][j - 2])
-                        && ((Character) board[i][j]).equals((Character) board[i - 3][j - 3])) {
-                    winner = (byte) ((((Character) playerColor).equals(
-                            board[i][j])) ? 1 : -1);
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    }
-
     boolean isGridFull() {
         return !contains((Character) ' ');
     }
 
     //Searches the inner most lists for a like element c.
     private boolean contains(char c) {
-        for (int i = 0; i < rowNumber; i++) {
-            for (int j = 0; j < columnNumber; j++) {
-                if ((((AList) grid.get(i)).get(j)).equals((Character) c)) {
+        for (int i = 0; i < board.getRowNumber(); i++) {
+            for (int j = 0; j < board.getColumnNumber(); j++) {
+                if ((((AList) board.getGrid().get(i)).get(j)).equals((Character) c)) {
                     return true;
                 }
             }
         }
         return false;
     }
-
+     
     /*
     * Saves gamestate to a .dat file
     * @param filename

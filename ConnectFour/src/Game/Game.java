@@ -80,10 +80,15 @@ public class Game {
                     saveRecordTo(RECORD_FILE_NAME);
                     break;
                 case '2':
-                    System.out.print("Which file do you wish to load?  ");
-                    filename = in.nextLine() + ".dat";
-                    state.loadFrom(filename);
-                    runGame();
+                    try {
+                        System.out.print("Which file do you wish to load?  ");
+
+                        filename = in.nextLine() + ".dat";
+                        state.loadFrom(filename);
+                        runGame();
+                    } catch (NullPointerException e) {
+                        System.out.printf("Invalid filename: %s  %s", filename,e.toString());
+                    }
                     break;
                 case '3':
                     System.out.printf("You have won %d and have lost %d games.", record[0], record[1]);
@@ -105,14 +110,15 @@ public class Game {
 
     private static boolean runGame() {
         displayGrid();
-        while (!state.checkForWin() && !state.isGridFull()) {
+        while (state.getWinner() == 0 
+                && !state.isGridFull()) {
             if (state.isPlayerTurn()) {
                 System.out.println("Choose a column, Player One:");
-                playersMove(state.getPlayerColor());
+                playersMove(state.getBoard().getPlayerColor());
             } else {
                 if (state.isTwoPlayer()) {
                     System.out.println("Choose a column, Player Two:");
-                    playersMove(state.getComputerColor());
+                    playersMove(state.getBoard().getComputerColor());
                 } else {
                     System.out.println("\nNena is thinking.....");
                     computersMove();
@@ -120,6 +126,7 @@ public class Game {
             }
             state.setPlayerTurn(!state.isPlayerTurn());
             displayGrid();
+            state.setWinner(state.getBoard().checkForWin());
         }
         displayWinner();
         return true;
@@ -129,12 +136,14 @@ public class Game {
     protected static void displayGrid() {
         System.out.println("\n  0   1   2   3   4   5   6");
         System.out.println("______________________________");
-        for (Object grid : state.getGrid()) {
+        state.getGrid().stream().map((grid) -> {
             for (int j = 0; j < state.getGrid().size() + 1; j++) {
                 System.out.printf("| %c ", ((AList) grid).get(j));
             }
+            return grid;
+        }).forEachOrdered((_item) -> {
             System.out.println("|");
-        }
+        });
         System.out.println("______________________________");
     }
 
@@ -166,7 +175,7 @@ public class Game {
 
     private static void computersMove() {
         try {
-            if (!state.insertPiece(getChoice(), state.getComputerColor())) {
+            if (!state.insertPiece(getChoice(), state.getBoard().getComputerColor())) {
                 System.out.println("That column is full.");
                 state.setPlayerTurn(!state.isPlayerTurn());
             }
@@ -184,11 +193,11 @@ public class Game {
             System.out.println("You Won, Player One");
         } else if (!state.isTwoPlayer()) {
             System.out.println("You Lost.");
-        } else{
+        } else {
             System.out.println("You Won, Player Two");
         }
     }
-
+    
     // Save the win lose record
     public static void saveRecordTo(String filename) {
         File file = new File(filename);
