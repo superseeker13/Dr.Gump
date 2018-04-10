@@ -1,6 +1,7 @@
 package Game;
 
 import Lists.AList;
+import java.util.Iterator;
 
 /**
  *
@@ -9,9 +10,10 @@ import Lists.AList;
 public class Board {
     private AList grid;
     transient private final char playerColor = 'Y';
-    private final char computerColor = 'R';
+    transient private final char computerColor = 'R';
     private final byte columnNumber;
     private final byte rowNumber;
+    private char lastPlayed;
     
     public Board(byte columnNumber, byte rowNumber){
         this.grid = new AList();
@@ -47,6 +49,14 @@ public class Board {
 
     public byte getRowNumber() {
         return rowNumber;
+    }
+     
+    public char getLastPlayed() {
+        return lastPlayed;
+    }
+    
+    public void setLastPlayed(char lastPlayed) {
+        this.lastPlayed = lastPlayed;
     }
     
     public Object[][] gridToArray(AList grid){
@@ -140,5 +150,22 @@ public class Board {
         }
         
         return 0;
+    }
+
+    public Object[] possibleMove() {
+        AList listZero = (AList) grid.getList()[0];
+        Iterator it = listZero.getIterator();
+        AList moves = new AList<>();
+        for(int i = 0; it.hasNext(); i++){
+            if((Character)it.next() == ' '){
+                moves.add(i);
+            }
+        }
+        return (Object[])moves.toArray();
+    }
+
+    public int winningMove(Character[] possibleMove) {
+        //TODO
+        return -1;
     }
 }

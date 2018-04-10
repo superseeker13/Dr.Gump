@@ -1,6 +1,7 @@
 package Game;
 
 import Lists.AList;
+import TrainerAI.GameTree;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,6 +23,7 @@ public class GameState<T> implements Serializable {
     private boolean playerTurn;
     private boolean twoPlayer;
     private byte winner;
+    private GameTree currentTree;
 
     public Board getBoard() {
         return board;
@@ -64,6 +66,16 @@ public class GameState<T> implements Serializable {
         this.playerTurn = playerTurn;
     }
 
+    public GameTree getCurrentTree() {
+        return currentTree;
+    }
+
+    public void setCurrentTree(GameTree currentTree) {
+        this.currentTree = currentTree;
+    }
+    
+    
+
     public GameState() {
         this.twoPlayer = false;
         this.winner = 0;
@@ -82,6 +94,7 @@ public class GameState<T> implements Serializable {
             });
         }
         this.playerTurn = true;
+        currentTree = Game.getTree();
     }
 
     public GameState(AList grid, boolean twoPlayer) {
@@ -101,6 +114,7 @@ public class GameState<T> implements Serializable {
         for (int i = rowNum; i >= 0; i--) {
             if (((AList) board.getGrid().get(i)).get(column).equals((Character) ' ')) {
                 ((AList) board.getGrid().get(i)).set(column, color);
+                board.setLastPlayed(column);
                 return true;
             }
         }

@@ -1,7 +1,8 @@
 package TrainerAI;
 
 import Game.Board;
-import Tree.Tree;
+import Tree.BinaryNode;
+import Tree.BinaryTree;
 import java.util.Iterator;
 
 /**
@@ -10,38 +11,25 @@ import java.util.Iterator;
  */
 public class GameTree {
 
-    private final int numberOfChildren;
-    private final char computerColor;
-    private final char playerColor;
-    private Tree gridTree, closestWin;
+    private int numberOfChildren;
+    private final char computerColor, playerColor;
+    private BinaryTree gridTree;
 
-    public GameTree(Character[][] grid) {
+    public GameTree(Board grid) {
         this.computerColor = 'R';
         this.playerColor = 'Y';
-        this.numberOfChildren = grid.length;
-        gridTree = new Tree();
-        gridTree.setRoot(grid);
-
+        gridTree = new BinaryTree(grid);
+        populateTree();
     }
 
-    public Tree getGridTree() {
+    public BinaryTree getGridTree() {
         return gridTree;
     }
 
-    private void setGridTree(Tree gridTree) {
+    public void setGridTree(BinaryTree gridTree) {
         this.gridTree = gridTree;
     }
 
-    public Tree getClosestWin() {
-        return closestWin;
-    }
-
-    private void setClosestWin(Tree closestWin) {
-        this.closestWin = closestWin;
-    }
-
-    
-    
     public int getNumberOfChildren() {
         return numberOfChildren;
     }
@@ -54,39 +42,55 @@ public class GameTree {
         return playerColor;
     }
 
-    private int findBestBranch() {
-        if (gridTree.size() == 1) {
-            if (this.closestWin.getHeight() < 5) {
-                return closestWin.getBranch();
-            } else {
-                return mostVictories();
-            }
-        }else{
-            return 0;
+    public char findBestBranch() {
+        if (gridTree.getNumberOfNodes() > 1) {
+            Board currentBoard = ((Board) gridTree.getRootData());
+            char winMove = (char) currentBoard.winningMove((Character[]) currentBoard.possibleMove());
+            if(winMove >  -1){
+                return winMove;
+            }    
+            return mostVictories();
         }
+        Board currentBoard = (Board) gridTree.getRootData();
+        Character[] moves = (Character[]) currentBoard.possibleMove();
+        return moves[(char) (Math.random() * moves.length)];
     }
 
-//    private int closetVictory() {
-//        for(Tree child : (LList) gridTree.getChildren()){
-//        Iterator it = child.LevelOrderIterator();
-//        int counter = 0;
-//        while(it.hasNext()){
-//            if(((Tree) it.next()).getData().checkWin()){
-//                return 
-//            }
-//        }
-//    }
-//        return 0;
-//    }
-
-    private int mostVictories() {
-    Iterator it = gridTree.LevelOrderIterator();
-        int counter = 0;
-        while(it.hasNext()){
-            if(((Board)((Tree) it.next()).getData()).checkForWin() != 0){
-                counter++;
+    private char mostVictories() {
+        Iterator it = gridTree.getRoot().getLeftChildren().getIterator();
+        BinaryTree bestBranch = gridTree;
+        char bestBranchNumber = 0;
+        while (it.hasNext()) {
+            BinaryTree currentSubTree = (BinaryTree) it.next();
+            Iterator childIt = (currentSubTree).getInOrderIterator();
+            char counter = 0;
+            while (childIt.hasNext()) {
+                Board currentBoard = (Board) ((BinaryTree) childIt.next()).getRootData();
+                if (((Board) ((BinaryTree) childIt.next()).getRootData()).checkForWin() != 0) {
+                    counter++;
+                }
+            }
+            if(counter > bestBranchNumber){
+                bestBranchNumber = counter;
+                bestBranch = currentSubTree;
             }
         }
-        return 0;    }
+        return ((Board) bestBranch.getRootData()).getLastPlayed();
+    }
 
+    public BinaryTree getNode(Board board) {
+        Iterator it = gridTree.getInOrderIterator();
+        while(it.hasNext()){
+            BinaryNode currentNode = (BinaryNode) it.next();
+            if(((Board) currentNode.getData()).equals(board)){
+                return new BinaryTree(currentNode.getData()
+                        , currentNode.getLeft(), currentNode.getRight());
+            }
+        }
+        return null;
+    }
+
+    private void populateTree() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

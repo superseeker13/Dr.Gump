@@ -1,6 +1,7 @@
 package Game;
 
 import Lists.AList;
+import TrainerAI.GameTree;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,17 +18,27 @@ import java.util.Scanner;
 public class Game {
 
     private static GameState state;
+    private static GameTree tree;
     private static String filename = "save.dat";
     private static final String RECORD_FILE_NAME = "record.dat";
+    private static final String TREE_FILE_NAME = "gameTree.dat";
     static int[] record;
     static Scanner in = new Scanner(System.in);
     static char choice;
+    
 
     public static void main(String[] args) {
         System.out.print("Welcome to Java ConnectFour. ");
         record = new int[2];
         try {
             loadRecordFrom(RECORD_FILE_NAME);
+            menu();
+        } catch (ClassNotFoundException ex) {
+            System.err.print(ex);
+        }
+        
+        try {
+            loadTreeFrom(TREE_FILE_NAME);
             menu();
         } catch (ClassNotFoundException ex) {
             System.err.print(ex);
@@ -79,6 +90,7 @@ public class Game {
                     runGame();
                     saveRecordTo(RECORD_FILE_NAME);
                     break;
+                    
                 case '2':
                     try {
                         System.out.print("Which file do you wish to load?  ");
@@ -90,9 +102,11 @@ public class Game {
                         System.out.printf("Invalid filename: %s  %s", filename,e.toString());
                     }
                     break;
+                    
                 case '3':
                     System.out.printf("You have won %d and have lost %d games.", record[0], record[1]);
                     break;
+                    
                 case '4':
                     System.out.print("Are you sure?  ");
                     if ('Y' == (in.nextLine().charAt(0))) {
@@ -100,6 +114,7 @@ public class Game {
                         saveRecordTo(RECORD_FILE_NAME);
                     }
                     break;
+                    
                 case '5':
                     System.exit(0);
                     break;
@@ -115,12 +130,13 @@ public class Game {
             if (state.isPlayerTurn()) {
                 System.out.println("Choose a column, Player One:");
                 playersMove(state.getBoard().getPlayerColor());
+                state.getCurrentTree().setGridTree(state.getCurrentTree()
+                        .getNode(state.getBoard()));
             } else {
                 if (state.isTwoPlayer()) {
                     System.out.println("Choose a column, Player Two:");
                     playersMove(state.getBoard().getComputerColor());
                 } else {
-                    System.out.println("\nNena is thinking.....");
                     computersMove();
                 }
             }
@@ -174,17 +190,9 @@ public class Game {
     }
 
     private static void computersMove() {
-        try {
-            if (!state.insertPiece(getChoice(), state.getBoard().getComputerColor())) {
-                System.out.println("That column is full.");
-                state.setPlayerTurn(!state.isPlayerTurn());
-            }
-        } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
-            System.out.println("Invaild column number.\n");
-            state.setPlayerTurn(!state.isPlayerTurn());
-        } catch (StringIndexOutOfBoundsException e) {
-            System.out.println("Invaild input");
-        }
+        System.out.println("Gump is thinking...");
+        state.insertPiece((char) tree.findBestBranch(), state.getBoard().getComputerColor());
+        state.setPlayerTurn(!state.isPlayerTurn());
     }
 
     private static void displayWinner() {
@@ -235,6 +243,44 @@ public class Game {
         }
     }
 
+    public static void saveTreeTo(String filename) {
+        File file = new File(filename);
+
+        try {
+            ObjectOutputStream fout
+                    = new ObjectOutputStream(new FileOutputStream(file));
+            fout.writeObject(Game.getTree());
+            fout.flush();
+            fout.close();
+        } catch (FileNotFoundException ex) {
+            System.err.println("File write error");
+        } catch (IOException ex) {
+            System.err.println("File write error!");
+        }
+    }
+    
+    public static void loadTreeFrom(String filename) throws ClassNotFoundException {
+        File file = new File(filename);
+        try {
+            if (file.exists()) {
+                ObjectInputStream fin = new ObjectInputStream(new FileInputStream(file));
+                setTree((GameTree) fin.readObject());
+                fin.close();
+
+            } else {
+                System.err.println("Tree file not found");
+                tree = new GameTree(new Board((byte) 7, (byte) 6));
+                saveTreeTo(filename);
+            }
+
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found");
+        } catch (IOException ex) {
+            System.err.println("IOException");
+        }
+    }
+
+    
     public static int[] getRecord() {
         return record;
     }
@@ -265,5 +311,13 @@ public class Game {
 
     static void setChoice(char choice) {
         Game.choice = choice;
+    }
+
+    public static GameTree getTree() {
+        return tree;
+    }
+
+    public static void setTree(GameTree tree) {
+        Game.tree = tree;
     }
 }
