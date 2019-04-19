@@ -5,14 +5,6 @@ import TrainerAI.GameTree;
 import java.io.Serializable;
 import java.util.Iterator;
 
-//import Tree.GeneralTree;
-//import java.io.File;
-//import java.io.FileInputStream;
-//import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
-//import java.io.IOException;
-//import java.io.ObjectInputStream;
-//import java.io.ObjectOutputStream;
 /**
  * @author sjw
  * @author Edward Conn
@@ -116,52 +108,3 @@ public class GameState<T> implements Serializable {
         currentTree = new GameTree(board, color);
     }
 }
-
-// Used for saving a whole tree.
-// Needs Fixed.    
-//
-//    void updateCurrentTree() {
-//        currentTree.setGridTree(new GeneralTree(currentTree.findNode(board)));
-//    }
-//
-//    private static void saveTree(boolean firstMove) {
-//        final String filename = playerTurn ? PLAYER_TREE_FILE_NAME 
-//                : COMPUTER_TREE_FILE_NAME;
-//        File file = new File(filename);
-//        try {
-//            try (ObjectOutputStream fout = new ObjectOutputStream(new FileOutputStream(file))) {
-//                fout.writeObject(currentTree);
-//            }
-//        } catch (FileNotFoundException ex) {
-//            System.err.println("File write error");
-//        } catch (IOException ex) {
-//            System.err.println("File write error!!");
-//        }
-//    }
-//    
-//    public static boolean loadTree(boolean firstMove) throws ClassNotFoundException {
-//        final String filename = playerTurn ? PLAYER_TREE_FILE_NAME 
-//                : COMPUTER_TREE_FILE_NAME;
-//        File file = new File(filename);
-//        try {
-//            if (file.exists()) {
-//                try (ObjectInputStream fin = new ObjectInputStream(new FileInputStream(file))) {
-//                    Object temp = fin.readObject();
-//                    currentTree = (GameTree) temp;
-//                }
-//                return true;
-//            } else {
-//                System.out.println("Tree not found.");
-//                System.out.println("Generating Tree.....");
-//                System.out.println("This may take a while...");
-//                generateTree();
-//                saveTree(firstMove);
-//            }
-//
-//        } catch (FileNotFoundException e) {
-//            System.err.println("File not found ex.");
-//        } catch (IOException ex) {
-//            System.err.println("IOException.");
-//        }
-//        return false;
-//    } 
